@@ -1,0 +1,84 @@
+/* Compiled composite classes (sample) for Navigation and Login components */
+/* This file maps commonly-used utility combinations to single class names for review. */
+
+.compiled-nav {
+.compiled-nav {
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsla(var(--card), 0.95);
+  backdrop-filter: blur(12px);
+  min-height: 64px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 50;
+}
+
+.compiled-nav-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  box-sizing: border-box;
+}
+
+.compiled-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.compiled-nav-brand {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: hsl(var(--primary));
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+.compiled-nav-brand:hover { color: hsl(var(--primary-glow)); transform: translateY(-1px); }
+
+.compiled-desktop-links {
+  display: none; /* desktop-only: will be enabled via media query */
+  align-items: center;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .compiled-desktop-links { display: flex; }
+}
+
+.compiled-mobile-controls { display: flex; align-items: center; gap: 0.5rem; }
+@media (min-width: 640px) { .compiled-mobile-controls { display: none; } }
+
+.compiled-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.875rem; border-radius: var(--border-radius); font-weight: 500; cursor: pointer; text-decoration: none; }
+.compiled-btn-sm { font-size: 0.75rem; padding: 0.375rem 0.75rem; }
+
+.compiled-btn-primary-sm { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: 1px solid hsl(var(--primary)); }
+.compiled-btn-ghost-sm { background: transparent; color: hsl(var(--foreground)); border: none; }
+
+.compiled-ml-2 { margin-left: 0.5rem; }
+.compiled-relative { position: relative; }
+
+.compiled-notif-badge { position: absolute; top: -0.25rem; right: -0.25rem; display:inline-flex; align-items:center; justify-content:center; background: #ef4444; color: #fff; font-size: 0.65rem; border-radius: 999px; padding: 0.125rem 0.375rem; min-width: 1.25rem; }
+
+/* Login-related compiled classes (utility combos inside Login component) */
+.compiled-login-root { padding-top: 1rem; background: none; }
+.compiled-facebook-container { display:flex; align-items:flex-start; justify-content:center; padding:16px 20px; max-width:1200px; margin:0 auto; }
+.compiled-facebook-branding { flex:1; padding-right:32px; display:flex; align-items:center; justify-content:flex-start; text-align:left; }
+.compiled-facebook-brand-content { max-width:500px; }
+.compiled-facebook-title { font-size: 64px; font-weight: bold; color: #1877f2; line-height:1; margin-bottom:16px; }
+.compiled-facebook-tagline { font-size: 28px; color:#1c1e21; }
+
+.compiled-success-msg { margin-bottom: 1rem; padding: 1rem; background: #ecfdf5; border: 1px solid #bbf7d0; border-radius: 0.5rem; }
+.compiled-success-inner { display:flex; align-items:flex-start; }
+.compiled-success-icon { width: 1.25rem; height:1.25rem; color:#16a34a; margin-right:0.5rem; margin-top:0.125rem; flex-shrink:0; }
+.compiled-success-text { color:#065f46; font-size:0.875rem; font-weight:500; }
+
+.compiled-error-msg { margin-bottom: 1rem; padding: 1rem; background: #ffeded; border: 1px solid #fecaca; border-radius: 0.5rem; }
+.compiled-error-inner { display:flex; align-items:center; }
+.compiled-alert-icon { width:1.25rem; height:1.25rem; color:#dc2626; margin-right:0.5rem; }
+.compiled-error-text { color:#7f1d1d; font-size:0.875rem; font-weight:500; }
+}
