@@ -7,7 +7,9 @@ export default function LoginPage() {
   return (
     <main className="app-page">
       <div className="container px-4">
-        <Login />
+        <React.Suspense fallback={null}>
+          <Login />
+        </React.Suspense>
       </div>
     </main>
   );
