@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Calendar, MessageSquare, Clock, ArrowRight, User } from 'lucide-react';
 
-const Home = () => {
+const Home: React.FC = () => {
   return (
     <div className="home-layout">
       <section className="hero-section">

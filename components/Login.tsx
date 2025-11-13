@@ -5,44 +5,42 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { User, Users, Eye, EyeOff, CheckCircle, AlertCircle, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import type { LoginFormData } from '../types';
 
-const Login = () => {
-    const [formData, setFormData] = useState({
+const Login: React.FC = () => {
+    const [formData, setFormData] = useState<LoginFormData>({
         email: '',
         password: '',
         userType: 'student'
     });
-    const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
+    const [successMessage, setSuccessMessage] = useState<string>('');
     
     const { login, loading } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Check for success message from registration
     useEffect(() => {
         const message = searchParams?.get?.('message');
         if (message) {
             setSuccessMessage(message);
             const email = searchParams.get('email');
             if (email) setFormData(prev => ({ ...prev, email }));
-            // optionally clear query params by replacing the URL without them
             try { router.replace('/login'); } catch (e) { /* ignore */ }
         }
     }, []);
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: value
         }));
-        // Clear error when user starts typing
         if (error) setError('');
     };
 
-    const handleLogin = async (e) => {
+    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const { email, password, userType } = formData;
@@ -50,7 +48,6 @@ const Login = () => {
         const result = await login(email, password, userType);
 
         if (result.success) {
-            // Redirect based on role or to profile for now
             const role = result.user?.profile?.type || userType;
             if (role === 'faculty') {
                 router.replace('/faculty-dashboard');
@@ -64,7 +61,7 @@ const Login = () => {
         }
     };
 
-    const handleDemoLogin = (userType) => {
+    const handleDemoLogin = (userType: 'student' | 'faculty') => {
         setFormData({
             email: userType === 'student' ? 'john.doe@university.edu' : 'sarah.wilson@university.edu',
             password: 'demo123',
@@ -75,7 +72,6 @@ const Login = () => {
     return (
         <div className="login-page">
             <div className="login-container">
-                {/* Left Column - Branding */}
                 <div className="login-branding">
                     <div className="login-brand-content">
                         <h1 className="login-title">ProfLink</h1>
@@ -86,17 +82,15 @@ const Login = () => {
                     </div>
                 </div>
 
-                {/* Right Column - Login Form */}
                 <div className="login-form-section">
                     <div className="login-form-container">
-                        {/* Success Message */}
                         {successMessage && (
                             <div className="alert alert-success">
                                 <div className="alert-content">
                                     <CheckCircle className="alert-icon alert-icon-success" />
                                     <div>
                                         <span className="alert-text alert-text-success">{successMessage}</span>
-                                        {location.state?.showEmailVerification && (
+                                        {searchParams?.get('showEmailVerification') && (
                                             <div className="email-verification-notice">
                                                 <div className="email-verification-content">
                                                     <Mail className="email-icon" />
@@ -111,7 +105,6 @@ const Login = () => {
                             </div>
                         )}
 
-                        {/* Error Message */}
                         {error && (
                             <div className="alert alert-error">
                                 <div className="alert-content">
@@ -119,7 +112,8 @@ const Login = () => {
                                     <span className="alert-text alert-text-error">{error}</span>
                                 </div>
                             </div>
-                        )}                        {/* Login Form */}
+                        )}
+
                         <form onSubmit={handleLogin} className="login-form">
                             <input
                                 name="email"
@@ -150,7 +144,6 @@ const Login = () => {
                                 </button>
                             </div>
 
-                            {/* User Type Selection */}
                             <div className="user-type-selection">
                                 <label className={`user-type-option ${formData.userType === 'student' ? 'active' : ''}`}>
                                     <input
@@ -200,12 +193,10 @@ const Login = () => {
 
                         <div className="form-divider"></div>
 
-                        {/* Create Account Button */}
                         <Link href="/register" className="create-account-btn">
                             Create New Account
                         </Link>
 
-                        {/* Demo Access */}
                         <div className="demo-section">
                             <p className="demo-text">Quick Demo Access:</p>
                             <div className="demo-buttons">
@@ -229,7 +220,6 @@ const Login = () => {
                         </div>
                     </div>
 
-                    {/* Footer */}
                     <div className="login-footer">
                         <p className="terms-text">
                             I agree to the <strong>Terms & Conditions</strong>
