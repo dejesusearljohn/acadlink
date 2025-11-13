@@ -13,6 +13,15 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
+// Validate required config
+if (!firebaseConfig.projectId) {
+  throw new Error('Firebase Project ID is not configured. Please set NEXT_PUBLIC_FIREBASE_PROJECT_ID in your environment variables.');
+}
+
+if (!firebaseConfig.databaseURL) {
+  throw new Error('Firebase Database URL is not configured. Please set NEXT_PUBLIC_FIREBASE_DATABASE_URL in your environment variables.');
+}
+
 let app: FirebaseApp;
 
 if (!getApps().length) {
