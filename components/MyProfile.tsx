@@ -147,47 +147,47 @@ const MyProfile: React.FC = () => {
       ) : (
         <div className="profile-layout">
           <div className="profile-header-card">
-            <div className="profile-cover">
+            <div className="profile-cover-bg">
               <img
-                src={`https://picsum.photos/1200/400?blur=2`}
+                src={`https://picsum.photos/1200/300?blur=2&random=${student.personal.code}`}
                 alt="Cover"
-                className="cover-image"
+                className="profile-cover-image"
               />
             </div>
-
-            <div className="profile-header-grid">
-              <div className="profile-avatar-cell">
-                <div className="profile-avatar-wrapper">
-                  <img
-                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(student.personal.name)}&background=1877f2&color=fff&size=128&rounded=true`}
-                    alt="Avatar"
-                    className="profile-avatar"
-                  />
-                </div>
+            
+            <div className="profile-header-content-wrapper">
+              <div className="profile-avatar-container">
+                <img
+                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(student.personal.name)}&background=3A7DCE&color=fff&size=160&rounded=true`}
+                  alt="Profile Avatar"
+                  className="profile-avatar-img"
+                />
               </div>
-
-              <div className="profile-info-cell">
-                <div className="profile-content">
-                  <div className="profile-header-content">
-                    <div className="profile-info">
-                      <h1 className="profile-name">{student.personal.name}</h1>
-                      <p className="profile-details">{student.personal.email}  {student.personal.code}</p>
-                    </div>
-                    <div className="profile-actions">
-                      <button
-                        className="btn btn-primary"
-                        onClick={handleSave}
-                        disabled={saving}
-                      >
-                        {saving ? 'Saving' : 'Save changes'}
-                      </button>
-                    </div>
+              
+              <div className="profile-header-info">
+                <div className="profile-identity-block">
+                  <h1 className="profile-name">{student.personal.name}</h1>
+                  <div className="profile-meta-row">
+                    <span className="profile-email">{student.personal.email}</span>
+                    <span className="profile-divider">•</span>
+                    <span className="profile-code">{student.personal.code}</span>
                   </div>
-                  {success && <p className="message message-success">{success}</p>}
-                  {error && <p className="message message-error">{error}</p>}
+                </div>
+                
+                <div className="profile-actions-block">
+                  <button
+                    className="btn btn-primary profile-save-btn"
+                    onClick={handleSave}
+                    disabled={saving}
+                  >
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </button>
                 </div>
               </div>
             </div>
+
+            {success && <div className="profile-alert profile-alert-success">{success}</div>}
+            {error && <div className="profile-alert profile-alert-error">{error}</div>}
           </div>
 
           <div className="profile-grid">

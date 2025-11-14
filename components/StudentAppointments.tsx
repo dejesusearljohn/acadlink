@@ -24,6 +24,16 @@ const StudentAppointments: React.FC = () => {
   });
 
   useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError('');
+        setSuccess('');
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, success]);
+
+  useEffect(() => {
     const load = async () => {
       try {
         const snap = await getDocs(collection(db, 'directory'));
@@ -135,72 +145,128 @@ const StudentAppointments: React.FC = () => {
   };
 
   return (
-    <div className="appointments-container">
-      <h2>Student Appointments</h2>
+    <div className="page-container">
+      {(error || success) && (
+        <div className="appointments-notifications">
+          {error && <div className="notification-toast error">{error}</div>}
+          {success && <div className="notification-toast success">{success}</div>}
+        </div>
+      )}
       
-      {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
+      <div className="appointments-page">
+        <div className="appointments-header">
+          <h1 className="appointments-title">Student Appointments</h1>
+          <p className="text-muted">Request and manage your faculty appointments</p>
+        </div>
 
-      <div className="appointments-section">
-        <h3>Request New Appointment</h3>
-        <form onSubmit={submit} className="appointment-form">
-          <div className="form-group">
-            <label>Select Faculty</label>
-            <select name="facultyId" value={form.facultyId} onChange={handleChange} required>
-              <option value="">-- Choose Faculty --</option>
-              {faculty.map(f => (
-                <option key={f.id} value={f.id}>{f.name} ({f.department})</option>
-              ))}
-            </select>
+        <div className="profile-grid">
+          <div className="profile-sidebar">
+            <div className="info-card">
+              <h3 className="card-title">Quick Stats</h3>
+              <ul className="stats-list">
+                <li><span>Total Appointments:</span> <strong>{appointments.length}</strong></li>
+                <li><span>Pending:</span> <strong>{appointments.filter(a => a.status === 'pending').length}</strong></li>
+                <li><span>Accepted:</span> <strong>{appointments.filter(a => a.status === 'accepted').length}</strong></li>
+                <li><span>Cancelled:</span> <strong>{appointments.filter(a => a.status === 'cancelled').length}</strong></li>
+              </ul>
+            </div>
           </div>
-          <div className="form-group">
-            <label>Requested Time</label>
-            <input
-              type="datetime-local"
-              name="requestedTime"
-              value={form.requestedTime}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Reason</label>
-            <textarea
-              name="reason"
-              value={form.reason}
-              onChange={handleChange}
-              rows={3}
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">Request Appointment</button>
-        </form>
-      </div>
 
-      <div className="appointments-section">
-        <h3>My Appointments</h3>
-        {loadingAppts ? (
-          <p>Loading appointments...</p>
-        ) : apptError ? (
-          <p className="text-error">{apptError}</p>
-        ) : appointments.length === 0 ? (
-          <p>No appointments yet.</p>
-        ) : (
-          <div className="appointments-list">
-            {appointments.map(apt => (
-              <div key={apt.id} className="appointment-card">
-                <div><strong>Faculty:</strong> {facultyNameMap[apt.facultyId] || apt.facultyId}</div>
-                <div><strong>Requested:</strong> {new Date(apt.requestedTime).toLocaleString()}</div>
-                <div><strong>Status:</strong> <span className={`status-${apt.status}`}>{apt.status}</span></div>
-                {apt.reason && <div><strong>Reason:</strong> {apt.reason}</div>}
-                {apt.status === 'pending' && (
-                  <button onClick={() => cancelAppointment(apt.id)} className="btn btn-secondary">
-                    Cancel
-                  </button>
-                )}
-              </div>
-            ))}
+          <div className="profile-main">
+            <div className="form-card">
+              <h3 className="section-title">Request New Appointment</h3>
+              <form onSubmit={submit}>
+                <div className="form-grid">
+                  <div className="form-field">
+                    <label className="field-label">Select Faculty</label>
+                    <select name="facultyId" value={form.facultyId} onChange={handleChange} required className="form-input">
+                      <option value="">-- Choose Faculty --</option>
+                      {faculty.map(f => (
+                        <option key={f.id} value={f.id}>{f.name} ({f.department})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-field">
+                    <label className="field-label">Requested Time</label>
+                    <input
+                      type="datetime-local"
+                      name="requestedTime"
+                      value={form.requestedTime}
+                      onChange={handleChange}
+                      required
+                      className="form-input"
+                    />
+                  </div>
+                  <div className="form-field" style={{ gridColumn: '1 / -1' }}>
+                    <label className="field-label">Reason</label>
+                    <textarea
+                      name="reason"
+                      value={form.reason}
+                      onChange={handleChange}
+                      rows={3}
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+                <button type="submit" className="btn btn-primary profile-save-btn" style={{ marginTop: '1rem' }}>Request Appointment</button>
+              </form>
+            </div>
+
+            <div className="form-card">
+              <h3 className="section-title">My Appointments</h3>
+              {loadingAppts ? (
+                <p className="text-muted">Loading appointments...</p>
+              ) : apptError ? (
+                <p className="text-error">{apptError}</p>
+              ) : appointments.length === 0 ? (
+                <p className="text-muted">No appointments yet.</p>
+              ) : (
+                <div className="appointments-list">
+                  {appointments.map(apt => (
+                    <div key={apt.id} className="appointment-item">
+                      <div className="appointment-header">
+                        <div className="appointment-code">Appointment #{apt.id.slice(-6).toUpperCase()}</div>
+                        <h3 className="appointment-title">{facultyNameMap[apt.facultyId] || apt.facultyId}</h3>
+                        <div className="appointment-meta">
+                          <div className="appointment-meta-item">
+                            <span>📅 {new Date(apt.requestedTime).toLocaleDateString()}</span>
+                          </div>
+                          <div className="appointment-meta-item">
+                            <span>🕒 {new Date(apt.requestedTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="appointment-body">
+                        <div className="appointment-details">
+                          {apt.reason && (
+                            <div className="appointment-row">
+                              <span className="appointment-label">Reason</span>
+                              <span className="appointment-value">{apt.reason}</span>
+                            </div>
+                          )}
+                          <div className="appointment-row">
+                            <span className="appointment-label">Status</span>
+                            <span className={`appointment-status status-${apt.status}`}>{apt.status}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {apt.status === 'pending' && (
+                        <div className="appointment-footer">
+                          <span></span>
+                          <button onClick={() => cancelAppointment(apt.id)} className="btn btn-danger" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>
+                            Cancel
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { User, Users, Eye, EyeOff, CheckCircle, AlertCircle, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -74,7 +75,14 @@ const Login: React.FC = () => {
             <div className="login-container">
                 <div className="login-branding">
                     <div className="login-brand-content">
-                        <h1 className="login-title">ProfLink</h1>
+                        <Image 
+                            src="/AcadLinkLogo.png" 
+                            alt="AcadLink" 
+                            width={300} 
+                            height={300} 
+                            className="login-logo" 
+                            priority
+                        />
                         <p className="login-tagline">
                             Connect with professors and students. <br />
                             Manage your consultations seamlessly.

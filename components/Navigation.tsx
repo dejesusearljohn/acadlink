@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { GraduationCap, User, LogOut, Bell, Menu, X } from 'lucide-react';
+import { User, LogOut, Bell, Menu, X } from 'lucide-react';
+import Image from 'next/image';
 import { useAuth } from '../context/AuthContext';
 import { ref, onValue, off } from 'firebase/database';
 import { rtdb } from '../lib/firebase';
@@ -90,8 +91,22 @@ const Navigation: React.FC = () => {
               href={isAuthenticated() ? (isFaculty() ? '/faculty-dashboard' : '/student-dashboard') : '/'}
               className="nav-brand"
             >
-              <GraduationCap className="nav-icon" />
-              <span className="nav-brand-text">ProfLink</span>
+              <Image 
+                src="/AcadLinkLogo.png" 
+                alt="AcadLink" 
+                width={150} 
+                height={100} 
+                className="nav-logo nav-logo-desktop" 
+                priority
+              />
+              <Image 
+                src="/AcadLinkSmallLogo.png" 
+                alt="AcadLink" 
+                width={40} 
+                height={40} 
+                className="nav-logo nav-logo-mobile" 
+                priority
+              />
             </Link>
 
             {/* Desktop navigation */}
@@ -166,8 +181,13 @@ const Navigation: React.FC = () => {
                 className="nav-brand"
                 onClick={closeSidebar}
               >
-                <GraduationCap className="nav-icon" />
-                <span className="nav-brand-text">ProfLink</span>
+                <Image 
+                  src="/AcadLinkSmallLogo.png" 
+                  alt="AcadLink" 
+                  width={32} 
+                  height={32} 
+                  className="nav-logo" 
+                />
               </Link>
               <button
                 className="mobile-sidebar-close"

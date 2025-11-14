@@ -189,123 +189,138 @@ const FacultyProfile: React.FC = () => {
   }
 
   return (
-    <div className="main-content">
-      <div className="container">
-        {loading ? (
-          <p className="text-muted">Loading profile…</p>
-        ) : error ? (
-          <p className="text-error">{error}</p>
-        ) : (
-          <div className="faculty-profile-layout">
-            <div className="faculty-header-card">
-              <div className="faculty-cover">
+    <div className="page-container">
+      {loading ? (
+        <p className="text-muted">Loading profile…</p>
+      ) : error ? (
+        <p className="text-error">{error}</p>
+      ) : (
+        <div className="profile-layout">
+          <div className="profile-header-card">
+            <div className="profile-cover-bg">
+              <img
+                src={`https://picsum.photos/1200/300?blur=2&random=${faculty.personal.code}`}
+                alt="Cover"
+                className="profile-cover-image"
+              />
+            </div>
+            
+            <div className="profile-header-content-wrapper">
+              <div className="profile-avatar-container">
                 <img
-                  src={`https://picsum.photos/1200/400?blur=2`}
-                  alt="Cover"
-                  className="faculty-cover-image"
+                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(faculty.personal.name)}&background=3A7DCE&color=fff&size=160&rounded=true`}
+                  alt="Profile Avatar"
+                  className="profile-avatar-img"
                 />
               </div>
-
-              <div className="faculty-header-grid">
-                <div className="faculty-avatar">
-                  <img
-                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(faculty.personal.name)}&background=1877f2&color=fff&size=128&rounded=true`}
-                    alt="Avatar"
-                    className="faculty-avatar-image"
-                  />
-                </div>
-
-                <div className="faculty-header-content">
-                  <div className="faculty-info-section">
-                    <div className="faculty-info">
-                      <h1 className="faculty-name">{faculty.personal.name}</h1>
-                      <p className="faculty-details">{faculty.personal.email}  {faculty.personal.code}</p>
-                    </div>
-                    <div className="faculty-actions">
-                      <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                        {saving ? 'Saving' : 'Save changes'}
-                      </button>
-                    </div>
+              
+              <div className="profile-header-info">
+                <div className="profile-identity-block">
+                  <h1 className="profile-name">{faculty.personal.name}</h1>
+                  <div className="profile-meta-row">
+                    <span className="profile-email">{faculty.personal.email}</span>
+                    <span className="profile-divider">•</span>
+                    <span className="profile-code">{faculty.personal.code}</span>
                   </div>
-                  {success && <p className="message-success">{success}</p>}
-                  {error && <p className="message-error">{error}</p>}
+                </div>
+                
+                <div className="profile-actions-block">
+                  <button
+                    className="btn btn-primary profile-save-btn"
+                    onClick={handleSave}
+                    disabled={saving}
+                  >
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </button>
                 </div>
               </div>
             </div>
 
-            <div className="faculty-content-grid">
-              <div className="faculty-sidebar">
-                <div className="info-card">
-                  <h3 className="info-card-title">About</h3>
-                  <p className="text-muted">Faculty profile details and consultation settings.</p>
-                </div>
-                <div className="info-card">
-                  <h3 className="info-card-title">Availability</h3>
-                  <div className="availability-info">
-                    <div>Time Zone: {faculty.availability.timeZone}</div>
-                    <div>Weekly schedule configured: {Object.keys(faculty.availability.weeklySchedule || {}).length > 0 ? 'Yes' : 'No'}</div>
+            {success && <div className="profile-alert profile-alert-success">{success}</div>}
+            {error && <div className="profile-alert profile-alert-error">{error}</div>}
+          </div>
+
+          <div className="profile-grid">
+            <div className="profile-sidebar">
+              <div className="info-card">
+                <h3 className="card-title">About</h3>
+                <p className="text-muted">Faculty profile details and consultation settings.</p>
+              </div>
+              <div className="info-card">
+                <h3 className="card-title">Availability</h3>
+                <ul className="stats-list">
+                  <li><span>Time Zone:</span> <strong>{faculty.availability.timeZone}</strong></li>
+                  <li><span>Weekly Schedule:</span> <strong>{Object.keys(faculty.availability.weeklySchedule || {}).length > 0 ? 'Configured' : 'Not Set'}</strong></li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="profile-main">
+              <div className="form-card">
+                <h3 className="section-title">Academic Information</h3>
+                <div className="form-grid">
+                  {['employeeId', 'title', 'department', 'office', 'publications', 'yearsExperience'].map((field) => (
+                    <div key={field} className="form-field">
+                      <label className="field-label">{field.replace(/([A-Z])/g, ' $1')}</label>
+                      <input
+                        name={field}
+                        type={['publications','yearsExperience'].includes(field) ? 'number' : 'text'}
+                        className="form-input"
+                        value={faculty.academicInfo[field as keyof FacultyAcademicInfo]}
+                        onChange={handleAcademicChange}
+                      />
+                    </div>
+                  ))}
+                  <div className="form-field">
+                    <label className="field-label">Expertise (comma-separated)</label>
+                    <input className="form-input" value={expertiseCSV} onChange={(e) => setExpertiseCSV(e.target.value)} />
                   </div>
+                  <div className="form-field">
+                    <label className="field-label">Education (comma-separated)</label>
+                    <input className="form-input" value={educationCSV} onChange={(e) => setEducationCSV(e.target.value)} />
+                  </div>
+                </div>
+
+                <div className="preferences-display">
+                  <div><strong>Current expertise:</strong> {faculty.academicInfo.expertise?.join(', ') || '—'}</div>
+                  <div><strong>Current education:</strong> {faculty.academicInfo.education?.join(', ') || '—'}</div>
                 </div>
               </div>
 
-              <div className="faculty-main-content">
-                <div className="form-card">
-                  <h3 className="form-card-title">Academic information</h3>
-                  <div className="form-grid">
-                    {['employeeId', 'title', 'department', 'office', 'publications', 'yearsExperience'].map((field) => (
-                      <div key={field} className="form-group">
-                        <label className="form-label">{field.replace(/([A-Z])/g, ' $1')}</label>
-                        <input
-                          name={field}
-                          type={['publications','yearsExperience'].includes(field) ? 'number' : 'text'}
-                          className="form-input"
-                          value={faculty.academicInfo[field as keyof FacultyAcademicInfo]}
-                          onChange={handleAcademicChange}
-                        />
-                      </div>
-                    ))}
-                    <div className="form-group">
-                      <label className="form-label">Expertise (comma-separated)</label>
-                      <input className="form-input" value={expertiseCSV} onChange={(e) => setExpertiseCSV(e.target.value)} />
+              <div className="form-card">
+                <h3 className="section-title">Consultation Settings</h3>
+                <div className="form-grid">
+                  {[
+                    { key: 'defaultDuration', label: 'Default duration (minutes)', type: 'number' },
+                    { key: 'maxDailyAppointments', label: 'Max daily appointments', type: 'number' },
+                    { key: 'bufferTime', label: 'Buffer time (minutes)', type: 'number' },
+                    { key: 'advanceBookingDays', label: 'Advance booking days', type: 'number' },
+                  ].map((cfg) => (
+                    <div key={cfg.key} className="form-field">
+                      <label className="field-label">{cfg.label}</label>
+                      <input
+                        name={cfg.key}
+                        type={cfg.type}
+                        className="form-input"
+                        value={faculty.consultationSettings[cfg.key as keyof ConsultationSettings]}
+                        onChange={handleSettingsChange}
+                      />
                     </div>
-                    <div className="form-group">
-                      <label className="form-label">Education (comma-separated)</label>
-                      <input className="form-input" value={educationCSV} onChange={(e) => setEducationCSV(e.target.value)} />
-                    </div>
+                  ))}
+                  <div className="form-field">
+                    <label className="field-label">Consultation Types (comma-separated)</label>
+                    <input className="form-input" value={consultTypesCSV} onChange={(e) => setConsultTypesCSV(e.target.value)} />
                   </div>
                 </div>
 
-                <div className="form-card">
-                  <h3 className="form-card-title">Consultation settings</h3>
-                  <div className="form-grid">
-                    {[
-                      { key: 'defaultDuration', label: 'Default duration (minutes)', type: 'number' },
-                      { key: 'maxDailyAppointments', label: 'Max daily appointments', type: 'number' },
-                      { key: 'bufferTime', label: 'Buffer time (minutes)', type: 'number' },
-                      { key: 'advanceBookingDays', label: 'Advance booking days', type: 'number' },
-                    ].map((cfg) => (
-                      <div key={cfg.key} className="form-group">
-                        <label className="form-label">{cfg.label}</label>
-                        <input
-                          name={cfg.key}
-                          type={cfg.type}
-                          className="form-input"
-                          value={faculty.consultationSettings[cfg.key as keyof ConsultationSettings]}
-                          onChange={handleSettingsChange}
-                        />
-                      </div>
-                    ))}
-                    <div className="form-group form-group-full">
-                      <label className="form-label">Consultation Types (comma-separated)</label>
-                      <input className="form-input" value={consultTypesCSV} onChange={(e) => setConsultTypesCSV(e.target.value)} />
-                    </div>
-                  </div>
+                <div className="preferences-display">
+                  <div><strong>Current consultation types:</strong> {faculty.consultationSettings.consultationTypes?.join(', ') || '—'}</div>
                 </div>
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

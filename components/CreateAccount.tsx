@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { User, Users, Eye, EyeOff, UserPlus, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -98,7 +99,14 @@ const CreateAccount: React.FC = () => {
             <div className="facebook-container">
                 <div className="facebook-branding">
                     <div className="facebook-brand-content">
-                        <h1 className="facebook-title">ProfLink</h1>
+                        <Image 
+                            src="/AcadLinkLogo.png" 
+                            alt="AcadLink" 
+                            width={200} 
+                            height={200} 
+                            className="facebook-logo" 
+                            priority
+                        />
                         <p className="facebook-tagline">
                             Join our community. <br />
                             Connect with professors and students today.
@@ -247,7 +255,6 @@ const CreateAccount: React.FC = () => {
                                     </div>
                                 ) : (
                                     <>
-                                        <UserPlus className="btn-icon" />
                                         Create Account
                                     </>
                                 )}

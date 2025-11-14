@@ -19,6 +19,16 @@ const FacultyAppointments: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
   useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError('');
+        setSuccess('');
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, success]);
+
+  useEffect(() => {
     if (!currentUser) return;
     setLoading(true);
     const qy = query(collection(db, 'appointments'), where('facultyId', '==', currentUser.uid));
@@ -133,64 +143,110 @@ const FacultyAppointments: React.FC = () => {
   };
 
   return (
-    <div className="faculty-appointments-container">
-      <h2>Faculty Appointments</h2>
+    <div className="page-container">
+      {(error || success) && (
+        <div className="appointments-notifications">
+          {error && <div className="notification-toast error">{error}</div>}
+          {success && <div className="notification-toast success">{success}</div>}
+        </div>
+      )}
+      
+      <div className="appointments-page">
+        <div className="appointments-header">
+          <div className="header-content">
+            <div>
+              <h1 className="appointments-title">Faculty Appointments</h1>
+              <p className="text-muted">Manage student appointment requests</p>
+            </div>
+            <div className="filter-tabs">
+              <button onClick={() => setStatusFilter('all')} className={`filter-tab ${statusFilter === 'all' ? 'active' : ''}`}>
+                All ({counts.all})
+              </button>
+              <button onClick={() => setStatusFilter('pending')} className={`filter-tab ${statusFilter === 'pending' ? 'active' : ''}`}>
+                Pending ({counts.pending})
+              </button>
+              <button onClick={() => setStatusFilter('accepted')} className={`filter-tab ${statusFilter === 'accepted' ? 'active' : ''}`}>
+                Accepted ({counts.accepted})
+              </button>
+              <button onClick={() => setStatusFilter('declined')} className={`filter-tab ${statusFilter === 'declined' ? 'active' : ''}`}>
+                Declined ({counts.declined})
+              </button>
+              <button onClick={() => setStatusFilter('rescheduled')} className={`filter-tab ${statusFilter === 'rescheduled' ? 'active' : ''}`}>
+                Rescheduled ({counts.rescheduled})
+              </button>
+              <button onClick={() => setStatusFilter('cancelled')} className={`filter-tab ${statusFilter === 'cancelled' ? 'active' : ''}`}>
+                Cancelled ({counts.cancelled})
+              </button>
+            </div>
+          </div>
+        </div>
 
-      {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
-
-      <div className="filter-section">
-        <button onClick={() => setStatusFilter('all')} className={statusFilter === 'all' ? 'active' : ''}>
-          All ({counts.all})
-        </button>
-        <button onClick={() => setStatusFilter('pending')} className={statusFilter === 'pending' ? 'active' : ''}>
-          Pending ({counts.pending})
-        </button>
-        <button onClick={() => setStatusFilter('accepted')} className={statusFilter === 'accepted' ? 'active' : ''}>
-          Accepted ({counts.accepted})
-        </button>
-        <button onClick={() => setStatusFilter('declined')} className={statusFilter === 'declined' ? 'active' : ''}>
-          Declined ({counts.declined})
-        </button>
-        <button onClick={() => setStatusFilter('rescheduled')} className={statusFilter === 'rescheduled' ? 'active' : ''}>
-          Rescheduled ({counts.rescheduled})
-        </button>
-        <button onClick={() => setStatusFilter('cancelled')} className={statusFilter === 'cancelled' ? 'active' : ''}>
-          Cancelled ({counts.cancelled})
-        </button>
-      </div>
-
-      {loading ? (
-        <p>Loading appointments...</p>
-      ) : filteredItems.length === 0 ? (
-        <p>No appointments in this category.</p>
-      ) : (
-        <div className="appointments-list">
-          {filteredItems.map(apt => (
-            <div key={apt.id} className="appointment-card">
-              <div><strong>Student:</strong> {apt.studentName || apt.studentEmail}</div>
-              <div><strong>Requested:</strong> {new Date(apt.requestedTime).toLocaleString()}</div>
-              <div><strong>Status:</strong> <span className={`status-${apt.status}`}>{apt.status}</span></div>
-              {apt.reason && <div><strong>Reason:</strong> {apt.reason}</div>}
-              
-              {apt.status === 'pending' && (
-                <div className="appointment-actions">
-                  <button onClick={() => setStatus(apt.id, 'accepted')} className="btn btn-success">Accept</button>
-                  <button onClick={() => setStatus(apt.id, 'declined')} className="btn btn-danger">Decline</button>
-                  <div className="reschedule-group">
-                    <input
-                      type="datetime-local"
-                      value={rescheduleMap[apt.id] || ''}
-                      onChange={(e) => setRescheduleMap(prev => ({ ...prev, [apt.id]: e.target.value }))}
-                    />
-                    <button onClick={() => reschedule(apt.id)} className="btn btn-secondary">Reschedule</button>
-                  </div>
+        <div className="appointments-content">
+            <div className="form-card">
+              <h3 className="section-title">Appointment Requests</h3>
+              {loading ? (
+                <p className="text-muted">Loading appointments...</p>
+              ) : filteredItems.length === 0 ? (
+                <p className="text-muted">No appointments in this category.</p>
+              ) : (
+                <div className="appointments-list">
+                  {filteredItems.map(apt => (
+                    <div key={apt.id} className="appointment-item">
+                      <div className="appointment-header">
+                        <div className="appointment-code">Request #{apt.id.slice(-6).toUpperCase()}</div>
+                        <h3 className="appointment-title">{apt.studentName || apt.studentEmail}</h3>
+                        <div className="appointment-meta">
+                          <div className="appointment-meta-item">
+                            <span>📅 {new Date(apt.requestedTime).toLocaleDateString()}</span>
+                          </div>
+                          <div className="appointment-meta-item">
+                            <span>🕒 {new Date(apt.requestedTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="appointment-body">
+                        <div className="appointment-details">
+                          {apt.reason && (
+                            <div className="appointment-row">
+                              <span className="appointment-label">Reason</span>
+                              <span className="appointment-value">{apt.reason}</span>
+                            </div>
+                          )}
+                          <div className="appointment-row">
+                            <span className="appointment-label">Status</span>
+                            <span className={`appointment-status status-${apt.status}`}>{apt.status}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {apt.status === 'pending' && (
+                        <div className="appointment-actions">
+                          <div className="action-buttons">
+                            <button onClick={() => setStatus(apt.id, 'accepted')} className="btn btn-success">Accept</button>
+                            <button onClick={() => setStatus(apt.id, 'declined')} className="btn btn-danger">Decline</button>
+                          </div>
+                          <div className="reschedule-section">
+                            <label className="field-label">Reschedule to:</label>
+                            <div className="reschedule-controls">
+                              <input
+                                type="datetime-local"
+                                value={rescheduleMap[apt.id] || ''}
+                                onChange={(e) => setRescheduleMap(prev => ({ ...prev, [apt.id]: e.target.value }))}
+                                className="form-input"
+                              />
+                              <button onClick={() => reschedule(apt.id)} className="btn btn-secondary">Reschedule</button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
-          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };
