@@ -1,9 +1,11 @@
+"use client";
+
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import MyProfile from './MyProfile';
 import FacultyProfile from './FacultyProfile';
 
-const ProfilePage = () => {
+const ProfilePage: React.FC = () => {
   const { currentUser } = useAuth();
   const role = (currentUser?.profile?.type || currentUser?.type) || 'student';
 
