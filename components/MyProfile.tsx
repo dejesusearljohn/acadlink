@@ -1,16 +1,27 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../app/firebase';
+import { db } from '../lib/firebase';
+import type { StudentProfileData } from '../types';
 
-const MyProfile = () => {
-  const { currentUser, updateStudentProfile, upsertStudentProfile, deleteStudentProfile } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState('');
-  const [error, setError] = useState('');
-  const [profileDocId, setProfileDocId] = useState('');
-  const [student, setStudent] = useState({
+interface StudentState extends StudentProfileData {
+  personal: {
+    name: string;
+    email: string;
+    code: string;
+  };
+}
+
+const MyProfile: React.FC = () => {
+  const { currentUser, updateStudentProfile } = useAuth();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [success, setSuccess] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [profileDocId, setProfileDocId] = useState<string>('');
+  const [student, setStudent] = useState<StudentState>({
     academicInfo: {
       studentId: '',
       year: '',
@@ -37,8 +48,8 @@ const MyProfile = () => {
   });
 
   const isStudent = (currentUser?.profile?.type || currentUser?.type) === 'student';
-  const [preferredDepartmentsCSV, setPreferredDepartmentsCSV] = useState('');
-  const [consultationTypesCSV, setConsultationTypesCSV] = useState('');
+  const [preferredDepartmentsCSV, setPreferredDepartmentsCSV] = useState<string>('');
+  const [consultationTypesCSV, setConsultationTypesCSV] = useState<string>('');
 
   useEffect(() => {
     const load = async () => {
@@ -58,7 +69,7 @@ const MyProfile = () => {
         if (isStudent) {
           const profSnap = await getDoc(doc(db, `users/${uid}/studentProfile/${docId}`));
           const profileData = profSnap.exists() ? profSnap.data() : {};
-          const updated = {
+          const updated: StudentState = {
             ...student,
             academicInfo: { ...student.academicInfo, ...(profileData.academicInfo || {}) },
             preferences: { ...student.preferences, ...(profileData.preferences || {}) },
@@ -74,7 +85,7 @@ const MyProfile = () => {
           setConsultationTypesCSV((updated.preferences.consultationTypes || []).join(', '));
         }
         setLoading(false);
-      } catch (e) {
+      } catch (e: any) {
         setError(e.message);
         setLoading(false);
       }
@@ -82,7 +93,7 @@ const MyProfile = () => {
     load();
   }, [currentUser]);
 
-  const handleAcademicChange = (e) => {
+  const handleAcademicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setStudent(prev => ({
       ...prev,
@@ -101,6 +112,7 @@ const MyProfile = () => {
       const consultTypes = consultationTypesCSV.split(',').map(s => s.trim()).filter(Boolean);
 
       await updateStudentProfile(currentUser.uid, {
+        profileId: profileDocId,
         academicInfo: student.academicInfo,
         preferences: {
           ...student.preferences,
@@ -110,82 +122,8 @@ const MyProfile = () => {
       });
 
       setSuccess('Profile updated successfully.');
-    } catch (e) {
+    } catch (e: any) {
       setError(e.message || 'Failed to save');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleUpsert = async () => {
-    try {
-      if (!currentUser) return;
-      setSaving(true);
-      setError('');
-      setSuccess('');
-
-      const preferDepts = preferredDepartmentsCSV.split(',').map(s => s.trim()).filter(Boolean);
-      const consultTypes = consultationTypesCSV.split(',').map(s => s.trim()).filter(Boolean);
-
-      await upsertStudentProfile(
-        currentUser.uid,
-        {
-          academicInfo: student.academicInfo,
-          preferences: {
-            ...student.preferences,
-            preferredDepartments: preferDepts,
-            consultationTypes: consultTypes,
-          },
-        },
-        true // merge
-      );
-
-      setSuccess('Profile saved (create or update) successfully.');
-    } catch (e) {
-      setError(e.message || 'Failed to save');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      if (!currentUser) return;
-      const confirmed = window.confirm('Delete your student profile? This cannot be undone.');
-      if (!confirmed) return;
-      setSaving(true);
-      setError('');
-      setSuccess('');
-
-      await deleteStudentProfile(currentUser.uid);
-
-      // Reset editable sections to defaults but keep personal info
-      setStudent(prev => ({
-        ...prev,
-        academicInfo: {
-          studentId: '',
-          year: '',
-          major: '',
-          department: '',
-          gpa: 0,
-          expectedGraduation: '',
-        },
-        preferences: {
-          preferredDepartments: [],
-          consultationTypes: [],
-          notificationSettings: {},
-        },
-        statistics: {
-          totalAppointments: 0,
-          completedAppointments: 0,
-          cancelledAppointments: 0,
-        },
-      }));
-      setPreferredDepartmentsCSV('');
-      setConsultationTypesCSV('');
-      setSuccess('Student profile deleted.');
-    } catch (e) {
-      setError(e.message || 'Failed to delete');
     } finally {
       setSaving(false);
     }
@@ -208,7 +146,6 @@ const MyProfile = () => {
         <p className="text-error">{error}</p>
       ) : (
         <div className="profile-layout">
-          {/* Cover + Avatar */}
           <div className="profile-header-card">
             <div className="profile-cover">
               <img
@@ -218,7 +155,6 @@ const MyProfile = () => {
               />
             </div>
 
-            {/* Grid-based header: left = avatar, right = info + actions on larger screens; stacked on mobile */}
             <div className="profile-header-grid">
               <div className="profile-avatar-cell">
                 <div className="profile-avatar-wrapper">
@@ -235,30 +171,15 @@ const MyProfile = () => {
                   <div className="profile-header-content">
                     <div className="profile-info">
                       <h1 className="profile-name">{student.personal.name}</h1>
-                      <p className="profile-details">{student.personal.email}  {student.personal.code}</p>
+                      <p className="profile-details">{student.personal.email}  {student.personal.code}</p>
                     </div>
                     <div className="profile-actions">
-                      <button
-                        className="btn btn-secondary"
-                        onClick={handleUpsert}
-                        disabled={saving}
-                        title="Create or merge your profile"
-                      >
-                        {saving ? 'Saving' : 'Create/Upsert'}
-                      </button>
                       <button
                         className="btn btn-primary"
                         onClick={handleSave}
                         disabled={saving}
                       >
-                        {saving ? 'Saving' : 'Save changes'}
-                      </button>
-                      <button
-                        className="btn btn-danger"
-                        onClick={handleDelete}
-                        disabled={saving}
-                      >
-                        Delete
+                        {saving ? 'Saving' : 'Save changes'}
                       </button>
                     </div>
                   </div>
@@ -269,9 +190,7 @@ const MyProfile = () => {
             </div>
           </div>
 
-          {/* Main content grid */}
           <div className="profile-grid">
-            {/* Left column */}
             <div className="profile-sidebar">
               <div className="info-card">
                 <h3 className="card-title">About</h3>
@@ -287,9 +206,7 @@ const MyProfile = () => {
               </div>
             </div>
 
-            {/* Right column */}
             <div className="profile-main">
-              {/* Academic Info */}
               <div className="form-card">
                 <h3 className="section-title">Academic information</h3>
                 <div className="form-grid">
@@ -301,7 +218,7 @@ const MyProfile = () => {
                         type={field === 'gpa' ? 'number' : 'text'}
                         step={field === 'gpa' ? '0.01' : undefined}
                         className="form-input"
-                        value={student.academicInfo[field]}
+                        value={student.academicInfo[field as keyof typeof student.academicInfo]}
                         onChange={handleAcademicChange}
                       />
                     </div>
@@ -309,7 +226,6 @@ const MyProfile = () => {
                 </div>
               </div>
 
-              {/* Preferences */}
               <div className="form-card">
                 <h3 className="section-title">Preferences</h3>
                 <div className="form-grid">

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-// Project styles (make sure these paths match the styles folder)
 import "../styles/ProfLink.css";
 import "../styles/compiled-classes.css";
 import Navigation from "../components/Navigation";

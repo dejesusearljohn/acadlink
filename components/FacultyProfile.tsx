@@ -1,16 +1,53 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { doc, getDoc, setDoc as setFirestoreDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../app/firebase';
+import { db } from '../lib/firebase';
 
-const FacultyProfile = () => {
-  const { currentUser, updateFacultyProfile, upsertFacultyProfile, deleteFacultyProfile } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState('');
-  const [error, setError] = useState('');
+interface FacultyAcademicInfo {
+  employeeId: string;
+  title: string;
+  department: string;
+  office: string;
+  expertise: string[];
+  education: string[];
+  publications: number;
+  yearsExperience: number;
+}
 
-  const [faculty, setFaculty] = useState({
+interface ConsultationSettings {
+  defaultDuration: number;
+  maxDailyAppointments: number;
+  bufferTime: number;
+  advanceBookingDays: number;
+  consultationTypes: string[];
+}
+
+interface Availability {
+  weeklySchedule: Record<string, any>;
+  timeZone: string;
+}
+
+interface FacultyState {
+  academicInfo: FacultyAcademicInfo;
+  consultationSettings: ConsultationSettings;
+  availability: Availability;
+  personal: {
+    name: string;
+    email: string;
+    code: string;
+  };
+}
+
+const FacultyProfile: React.FC = () => {
+  const { currentUser, updateFacultyProfile } = useAuth();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [success, setSuccess] = useState<string>('');
+  const [error, setError] = useState<string>('');
+
+  const [faculty, setFaculty] = useState<FacultyState>({
     academicInfo: {
       employeeId: '',
       title: '',
@@ -40,9 +77,9 @@ const FacultyProfile = () => {
   });
 
   const isFaculty = (currentUser?.profile?.type || currentUser?.type) === 'faculty';
-  const [expertiseCSV, setExpertiseCSV] = useState('');
-  const [educationCSV, setEducationCSV] = useState('');
-  const [consultTypesCSV, setConsultTypesCSV] = useState('');
+  const [expertiseCSV, setExpertiseCSV] = useState<string>('');
+  const [educationCSV, setEducationCSV] = useState<string>('');
+  const [consultTypesCSV, setConsultTypesCSV] = useState<string>('');
 
   useEffect(() => {
     const load = async () => {
@@ -61,7 +98,7 @@ const FacultyProfile = () => {
         if (isFaculty) {
           const profSnap = await getDoc(doc(db, `users/${uid}/facultyProfile/${docId}`));
           const profileData = profSnap.exists() ? profSnap.data() : {};
-          const updated = {
+          const updated: FacultyState = {
             ...faculty,
             academicInfo: { ...faculty.academicInfo, ...(profileData.academicInfo || {}) },
             consultationSettings: { ...faculty.consultationSettings, ...(profileData.consultationSettings || {}) },
@@ -78,7 +115,7 @@ const FacultyProfile = () => {
           setConsultTypesCSV((updated.consultationSettings.consultationTypes || []).join(', '));
         }
         setLoading(false);
-      } catch (e) {
+      } catch (e: any) {
         setError(e.message);
         setLoading(false);
       }
@@ -86,7 +123,7 @@ const FacultyProfile = () => {
     load();
   }, [currentUser]);
 
-  const handleAcademicChange = (e) => {
+  const handleAcademicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFaculty(prev => ({
       ...prev,
@@ -94,7 +131,7 @@ const FacultyProfile = () => {
     }));
   };
 
-  const handleSettingsChange = (e) => {
+  const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFaculty(prev => ({
       ...prev,
@@ -115,10 +152,9 @@ const FacultyProfile = () => {
 
       await updateFacultyProfile(currentUser.uid, {
         academicInfo: { ...faculty.academicInfo, expertise, education },
-        consultationSettings: { ...faculty.consultationSettings, consultationTypes },
+        consultationSettings: { ...faculty.consultationSettings, consultationTypes } as any,
       });
 
-      // Mirror changes to directory for student discovery
       try {
         await setFirestoreDoc(doc(db, 'directory', currentUser.uid), {
           uid: currentUser.uid,
@@ -130,102 +166,12 @@ const FacultyProfile = () => {
           updatedAt: serverTimestamp(),
         }, { merge: true });
       } catch (e) {
-        console.warn('Directory sync failed:', e?.message);
+        console.warn('Directory sync failed:', e);
       }
 
       setSuccess('Profile updated successfully.');
-    } catch (e) {
+    } catch (e: any) {
       setError(e.message || 'Failed to save');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleUpsert = async () => {
-    try {
-      if (!currentUser) return;
-      setSaving(true);
-      setError('');
-      setSuccess('');
-
-      const expertise = expertiseCSV.split(',').map(s => s.trim()).filter(Boolean);
-      const education = educationCSV.split(',').map(s => s.trim()).filter(Boolean);
-      const consultationTypes = consultTypesCSV.split(',').map(s => s.trim()).filter(Boolean);
-
-      await upsertFacultyProfile(
-        currentUser.uid,
-        {
-          academicInfo: { ...faculty.academicInfo, expertise, education },
-          consultationSettings: { ...faculty.consultationSettings, consultationTypes },
-          availability: faculty.availability,
-        },
-        true
-      );
-
-      setSuccess('Profile saved (create or update) successfully.');
-
-      // Mirror changes to directory for student discovery
-      try {
-        await setFirestoreDoc(doc(db, 'directory', currentUser.uid), {
-          uid: currentUser.uid,
-          name: faculty.personal.name,
-          email: faculty.personal.email,
-          role: 'faculty',
-          title: faculty.academicInfo.title || '',
-          department: faculty.academicInfo.department || '',
-          updatedAt: serverTimestamp(),
-        }, { merge: true });
-      } catch (e) {
-        console.warn('Directory sync failed:', e?.message);
-      }
-    } catch (e) {
-      setError(e.message || 'Failed to save');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      if (!currentUser) return;
-      const confirmed = window.confirm('Delete your faculty profile? This cannot be undone.');
-      if (!confirmed) return;
-      setSaving(true);
-      setError('');
-      setSuccess('');
-
-      await deleteFacultyProfile(currentUser.uid);
-
-      setFaculty(prev => ({
-        ...prev,
-        academicInfo: {
-          employeeId: '',
-          title: '',
-          department: '',
-          office: '',
-          expertise: [],
-          education: [],
-          publications: 0,
-          yearsExperience: 0,
-        },
-        consultationSettings: {
-          defaultDuration: 30,
-          maxDailyAppointments: 5,
-          bufferTime: 10,
-          advanceBookingDays: 7,
-          consultationTypes: ['virtual'],
-        },
-        availability: {
-          weeklySchedule: {},
-          timeZone: 'Asia/Manila',
-        },
-      }));
-      setExpertiseCSV('');
-      setEducationCSV('');
-      setConsultTypesCSV('');
-      setSuccess('Faculty profile deleted.');
-    } catch (e) {
-      setError(e.message || 'Failed to delete');
     } finally {
       setSaving(false);
     }
@@ -251,7 +197,6 @@ const FacultyProfile = () => {
           <p className="text-error">{error}</p>
         ) : (
           <div className="faculty-profile-layout">
-            {/* Cover + Header */}
             <div className="faculty-header-card">
               <div className="faculty-cover">
                 <img
@@ -274,16 +219,12 @@ const FacultyProfile = () => {
                   <div className="faculty-info-section">
                     <div className="faculty-info">
                       <h1 className="faculty-name">{faculty.personal.name}</h1>
-                      <p className="faculty-details">{faculty.personal.email}  {faculty.personal.code}</p>
+                      <p className="faculty-details">{faculty.personal.email}  {faculty.personal.code}</p>
                     </div>
                     <div className="faculty-actions">
-                      <button className="btn btn-secondary" onClick={handleUpsert} disabled={saving}>
-                        {saving ? 'Saving' : 'Create/Upsert'}
-                      </button>
                       <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                        {saving ? 'Saving' : 'Save changes'}
+                        {saving ? 'Saving' : 'Save changes'}
                       </button>
-                      <button className="btn btn-danger" onClick={handleDelete} disabled={saving}>Delete</button>
                     </div>
                   </div>
                   {success && <p className="message-success">{success}</p>}
@@ -292,9 +233,7 @@ const FacultyProfile = () => {
               </div>
             </div>
 
-            {/* Main content grid */}
             <div className="faculty-content-grid">
-              {/* Left column */}
               <div className="faculty-sidebar">
                 <div className="info-card">
                   <h3 className="info-card-title">About</h3>
@@ -309,9 +248,7 @@ const FacultyProfile = () => {
                 </div>
               </div>
 
-              {/* Right column */}
               <div className="faculty-main-content">
-                {/* Academic Info */}
                 <div className="form-card">
                   <h3 className="form-card-title">Academic information</h3>
                   <div className="form-grid">
@@ -322,7 +259,7 @@ const FacultyProfile = () => {
                           name={field}
                           type={['publications','yearsExperience'].includes(field) ? 'number' : 'text'}
                           className="form-input"
-                          value={faculty.academicInfo[field]}
+                          value={faculty.academicInfo[field as keyof FacultyAcademicInfo]}
                           onChange={handleAcademicChange}
                         />
                       </div>
@@ -338,7 +275,6 @@ const FacultyProfile = () => {
                   </div>
                 </div>
 
-                {/* Consultation Settings */}
                 <div className="form-card">
                   <h3 className="form-card-title">Consultation settings</h3>
                   <div className="form-grid">
@@ -354,7 +290,7 @@ const FacultyProfile = () => {
                           name={cfg.key}
                           type={cfg.type}
                           className="form-input"
-                          value={faculty.consultationSettings[cfg.key]}
+                          value={faculty.consultationSettings[cfg.key as keyof ConsultationSettings]}
                           onChange={handleSettingsChange}
                         />
                       </div>

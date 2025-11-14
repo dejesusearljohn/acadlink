@@ -6,19 +6,19 @@ import { usePathname, useRouter } from 'next/navigation';
 import { GraduationCap, User, LogOut, Bell, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ref, onValue, off } from 'firebase/database';
-import { fs as rtdb } from '../app/firebase';
+import { rtdb } from '../lib/firebase';
 
-const Navigation = () => {
+const Navigation: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { currentUser, logout } = useAuth();
-  const [notifCount, setNotifCount] = useState(0);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notifCount, setNotifCount] = useState<number>(0);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
 
   const isAuthenticated = () => !!currentUser;
   const isStudent = () => (currentUser?.profile?.type || currentUser?.type) === 'student';
   const isFaculty = () => (currentUser?.profile?.type || currentUser?.type) === 'faculty';
-  const isActive = (path) => pathname === path;
+  const isActive = (path: string) => pathname === path;
 
   const handleLogout = async () => {
     try {
@@ -31,7 +31,10 @@ const Navigation = () => {
   };
 
   useEffect(() => {
-    if (!currentUser) { setNotifCount(0); return; }
+    if (!currentUser) { 
+      setNotifCount(0); 
+      return; 
+    }
     const uid = currentUser.uid;
     const notifRef = ref(rtdb, `notifications/${uid}`);
     const handler = onValue(notifRef, (snap) => {
@@ -46,7 +49,7 @@ const Navigation = () => {
 
   // Close sidebar on Escape key
   useEffect(() => {
-    const handleEscape = (e) => {
+    const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && sidebarOpen) {
         setSidebarOpen(false);
       }
@@ -248,4 +251,3 @@ const Navigation = () => {
 };
 
 export default Navigation;
-

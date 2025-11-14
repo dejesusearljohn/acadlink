@@ -5,9 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { User, Users, Eye, EyeOff, UserPlus, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import type { RegisterFormData } from '../types';
 
-const CreateAccount = () => {
-    const [formData, setFormData] = useState({
+const CreateAccount: React.FC = () => {
+    const [formData, setFormData] = useState<RegisterFormData>({
         firstName: '',
         lastName: '',
         email: '',
@@ -15,28 +16,27 @@ const CreateAccount = () => {
         confirmPassword: '',
         userType: 'student'
     });
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
+    const [success, setSuccess] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
+    const [emailVerificationSent, setEmailVerificationSent] = useState<boolean>(false);
     
     const { register } = useAuth();
     const router = useRouter();
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: value
         }));
-        // Clear messages when user starts typing
         if (error) setError('');
         if (success) setSuccess('');
     };
 
-    const validateForm = () => {
+    const validateForm = (): boolean => {
         if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword) {
             setError('Please fill in all fields');
             return false;
@@ -61,7 +61,7 @@ const CreateAccount = () => {
         return true;
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (!validateForm()) return;
@@ -77,14 +77,12 @@ const CreateAccount = () => {
             lastName,
             email,
             password,
-            userType, // "student" or "faculty"
+            userType,
         });
 
         if (result.success) {
             setSuccess('Account created! Please verify your email to continue.');
             setEmailVerificationSent(true);
-            // Redirect to Login with a friendly message to verify email first
-            // Pass a friendly message via query params (Login will read and then replace URL)
             const msg = encodeURIComponent('Account created successfully! Please verify your email before logging in.');
             const q = `/login?message=${msg}&showEmailVerification=true&email=${encodeURIComponent(email)}`;
             router.replace(q);
@@ -98,7 +96,6 @@ const CreateAccount = () => {
     return (
         <div className="bg-facebook-bg">
             <div className="facebook-container">
-                {/* Left Column - Branding */}
                 <div className="facebook-branding">
                     <div className="facebook-brand-content">
                         <h1 className="facebook-title">ProfLink</h1>
@@ -109,12 +106,10 @@ const CreateAccount = () => {
                     </div>
                 </div>
 
-                {/* Right Column - Registration Form */}
                 <div className="facebook-form-section">
                     <div className="facebook-form-container">
                         <h2 className="create-account-title">Create New Account</h2>
                         
-                        {/* Success Display */}
                         {success && (
                             <div className="alert alert-success">
                                 <div className="alert-content">
@@ -129,7 +124,6 @@ const CreateAccount = () => {
                             </div>
                         )}
 
-                        {/* Error Display */}
                         {error && (
                             <div className="alert alert-error">
                                 <div className="alert-content">
@@ -139,7 +133,6 @@ const CreateAccount = () => {
                             </div>
                         )}
 
-                        {/* Registration Form */}
                         <form onSubmit={handleSubmit} className="facebook-form">
                             <div className="name-fields">
                                 <input
@@ -210,7 +203,6 @@ const CreateAccount = () => {
                                 </button>
                             </div>
 
-                            {/* User Type Selection */}
                             <div className="facebook-user-type">
                                 <label className={`facebook-user-option ${formData.userType === 'student' ? 'active' : ''}`}>
                                     <input
@@ -240,7 +232,7 @@ const CreateAccount = () => {
 
                             <button
                                 type="submit"
-                                disabled={loading || success}
+                                disabled={loading || !!success}
                                 className={`facebook-login-btn ${success ? 'btn-success' : ''}`}
                             >
                                 {loading ? (
@@ -264,7 +256,6 @@ const CreateAccount = () => {
 
                         <div className="facebook-divider"></div>
 
-                        {/* Back to Login */}
                         {!success && (
                             <div className="login-redirect">
                                 <p className="redirect-text">Already have an account?</p>
@@ -274,7 +265,6 @@ const CreateAccount = () => {
                             </div>
                         )}
 
-                        {/* Success state - show login link */}
                         {success && (
                             <div className="login-redirect">
                                 <p className="redirect-text success-text">Ready to get started?</p>
@@ -285,7 +275,6 @@ const CreateAccount = () => {
                         )}
                     </div>
 
-                    {/* Footer */}
                     <div className="facebook-footer">
                         <p className="facebook-create-page">
                             By signing up, you agree to our <strong>Terms & Conditions</strong> and <strong>Privacy Policy</strong>

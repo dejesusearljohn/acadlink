@@ -1,10 +1,20 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute = ({ children, requiredRole = null, requireEmailVerification = false }) => {
+interface ProtectedRouteProps {
+  children: ReactNode;
+  requiredRole?: 'student' | 'faculty' | null;
+  requireEmailVerification?: boolean;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  requiredRole = null, 
+  requireEmailVerification = false 
+}) => {
   const { currentUser } = useAuth();
   const router = useRouter();
 
@@ -29,7 +39,7 @@ const ProtectedRoute = ({ children, requiredRole = null, requireEmailVerificatio
 
   if (!isAuthenticated()) return null;
 
-  if (requireEmailVerification && !currentUser?.emailVerified && currentUser?.metadata?.emailVerified !== true) {
+  if (requireEmailVerification && !(currentUser as any)?.emailVerified && (currentUser as any)?.metadata?.emailVerified !== true) {
     return (
       <div className="email-verification-notice">
         <h3 className="verification-title">Email Verification Required</h3>
@@ -39,7 +49,7 @@ const ProtectedRoute = ({ children, requiredRole = null, requireEmailVerificatio
     );
   }
 
-  return children;
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;
