@@ -199,9 +199,9 @@ const MyProfile: React.FC = () => {
               <div className="info-card">
                 <h3 className="card-title">Statistics</h3>
                 <ul className="stats-list">
-                  <li>Total appointments: {student.statistics.totalAppointments}</li>
-                  <li>Completed: {student.statistics.completedAppointments}</li>
-                  <li>Cancelled: {student.statistics.cancelledAppointments}</li>
+                  <li>Total appointments: {student.statistics?.totalAppointments || 0}</li>
+                  <li>Completed: {student.statistics?.completedAppointments || 0}</li>
+                  <li>Cancelled: {student.statistics?.cancelledAppointments || 0}</li>
                 </ul>
               </div>
             </div>
