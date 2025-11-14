@@ -248,8 +248,8 @@ const MyProfile: React.FC = () => {
                 </div>
 
                 <div className="preferences-display">
-                  <div><strong>Current departments:</strong> {student.preferences.preferredDepartments?.join(', ') || '—'}</div>
-                  <div><strong>Current consultation types:</strong> {student.preferences.consultationTypes?.join(', ') || '—'}</div>
+                  <div><strong>Current departments:</strong> {student.preferences?.preferredDepartments?.join(', ') || '—'}</div>
+                  <div><strong>Current consultation types:</strong> {student.preferences?.consultationTypes?.join(', ') || '—'}</div>
                 </div>
               </div>
             </div>
