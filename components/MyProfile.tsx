@@ -218,7 +218,7 @@ const MyProfile: React.FC = () => {
                         type={field === 'gpa' ? 'number' : 'text'}
                         step={field === 'gpa' ? '0.01' : undefined}
                         className="form-input"
-                        value={student.academicInfo[field as keyof typeof student.academicInfo]}
+                        value={student.academicInfo?.[field as keyof typeof student.academicInfo] || ''}
                         onChange={handleAcademicChange}
                       />
                     </div>
