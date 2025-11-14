@@ -81,8 +81,8 @@ const MyProfile: React.FC = () => {
             }
           };
           setStudent(updated);
-          setPreferredDepartmentsCSV((updated.preferences.preferredDepartments || []).join(', '));
-          setConsultationTypesCSV((updated.preferences.consultationTypes || []).join(', '));
+          setPreferredDepartmentsCSV((updated.preferences?.preferredDepartments || []).join(', '));
+          setConsultationTypesCSV((updated.preferences?.consultationTypes || []).join(', '));
         }
         setLoading(false);
       } catch (e: any) {
