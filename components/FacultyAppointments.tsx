@@ -9,6 +9,12 @@ import type { Appointment } from '../types';
 
 type StatusFilter = 'all' | 'pending' | 'accepted' | 'declined' | 'rescheduled' | 'cancelled';
 
+// Generate unique video conference link
+const generateMeetLink = (appointmentId: string): string => {
+  const roomName = `ProfLink-${appointmentId.slice(-8)}`;
+  return `https://meet.jit.si/${roomName}`;
+};
+
 const FacultyAppointments: React.FC = () => {
   const { currentUser } = useAuth();
   const [items, setItems] = useState<(Appointment & { id: string })[]>([]);
@@ -74,10 +80,18 @@ const FacultyAppointments: React.FC = () => {
     try {
       setError(''); 
       setSuccess('');
-      await updateDoc(doc(db, 'appointments', id), {
+      
+      const updateData: any = {
         status,
         updatedAt: serverTimestamp(),
-      });
+      };
+      
+      // Generate video conference link when accepting
+      if (status === 'accepted') {
+        updateData.videoConferenceLink = generateMeetLink(id);
+      }
+      
+      await updateDoc(doc(db, 'appointments', id), updateData);
       setSuccess(`Appointment ${status}.`);
       
       try {
@@ -281,6 +295,20 @@ const FacultyAppointments: React.FC = () => {
                             <div className="appointment-row">
                               <span className="appointment-label">Your Notes</span>
                               <span className="appointment-value">{(apt as any).facultyNotes}</span>
+                            </div>
+                          )}
+                          {(apt as any).videoConferenceLink && (
+                            <div className="appointment-row">
+                              <span className="appointment-label">Video Conference</span>
+                              <a 
+                                href={(apt as any).videoConferenceLink} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="appointment-value"
+                                style={{ color: '#0066cc', textDecoration: 'underline', cursor: 'pointer' }}
+                              >
+                                🎥 Join Meeting
+                              </a>
                             </div>
                           )}
                         </div>

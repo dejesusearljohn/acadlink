@@ -297,6 +297,20 @@ const StudentAppointments: React.FC = () => {
                               <span className="appointment-value">{'⭐'.repeat((apt as any).studentRating)} ({(apt as any).studentRating}/5)</span>
                             </div>
                           )}
+                          {(apt as any).videoConferenceLink && (
+                            <div className="appointment-row">
+                              <span className="appointment-label">Video Conference</span>
+                              <a 
+                                href={(apt as any).videoConferenceLink} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="appointment-value"
+                                style={{ color: '#0066cc', textDecoration: 'underline', cursor: 'pointer' }}
+                              >
+                                🎥 Join Meeting
+                              </a>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
