@@ -5594,7 +5594,7 @@ nav {
 }
 
 .btn-request-appointment:hover {
-  background: hsl(var(--brand-primary-dark));
+  background: #365f92;
   box-shadow: 0 4px 12px hsla(var(--brand-primary), 0.3);
   transform: translateY(-1px);
 }
