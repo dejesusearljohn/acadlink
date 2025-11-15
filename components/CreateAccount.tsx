@@ -102,14 +102,14 @@ const CreateAccount: React.FC = () => {
                         <Image 
                             src="/AcadLinkLogo.png" 
                             alt="AcadLink" 
-                            width={200} 
-                            height={200} 
+                            width={300} 
+                            height={300} 
                             className="facebook-logo" 
                             priority
                         />
                         <p className="facebook-tagline">
-                            Join our community. <br />
-                            Connect with professors and students today.
+                            Connect with professors and students. <br />
+                            Manage your consultations seamlessly.
                         </p>
                     </div>
                 </div>

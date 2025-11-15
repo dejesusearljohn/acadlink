@@ -62,36 +62,28 @@ const Login: React.FC = () => {
         }
     };
 
-    const handleDemoLogin = (userType: 'student' | 'faculty') => {
-        setFormData({
-            email: userType === 'student' ? 'john.doe@university.edu' : 'sarah.wilson@university.edu',
-            password: 'demo123',
-            userType
-        });
-    };
-
     return (
-        <div className="login-page">
-            <div className="login-container">
-                <div className="login-branding">
-                    <div className="login-brand-content">
+        <div className="bg-facebook-bg">
+            <div className="facebook-container">
+                <div className="facebook-branding">
+                    <div className="facebook-brand-content">
                         <Image 
                             src="/AcadLinkLogo.png" 
                             alt="AcadLink" 
                             width={300} 
                             height={300} 
-                            className="login-logo" 
+                            className="facebook-logo" 
                             priority
                         />
-                        <p className="login-tagline">
+                        <p className="facebook-tagline">
                             Connect with professors and students. <br />
                             Manage your consultations seamlessly.
                         </p>
                     </div>
                 </div>
 
-                <div className="login-form-section">
-                    <div className="login-form-container">
+                <div className="facebook-form-section">
+                    <div className="facebook-form-container">
                         {successMessage && (
                             <div className="alert alert-success">
                                 <div className="alert-content">
@@ -204,32 +196,10 @@ const Login: React.FC = () => {
                         <Link href="/register" className="create-account-btn">
                             Create New Account
                         </Link>
-
-                        <div className="demo-section">
-                            <p className="demo-text">Quick Demo Access:</p>
-                            <div className="demo-buttons">
-                                <button
-                                    type="button"
-                                    onClick={() => handleDemoLogin('student')}
-                                    className="demo-btn"
-                                >
-                                    <User className="option-icon" />
-                                    Student Demo
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => handleDemoLogin('faculty')}
-                                    className="demo-btn"
-                                >
-                                    <Users className="option-icon" />
-                                    Faculty Demo
-                                </button>
-                            </div>
-                        </div>
                     </div>
 
-                    <div className="login-footer">
-                        <p className="terms-text">
+                    <div className="facebook-footer">
+                        <p className="facebook-create-page">
                             I agree to the <strong>Terms & Conditions</strong>
                         </p>
                     </div>

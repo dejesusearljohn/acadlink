@@ -16,6 +16,7 @@ const StudentAppointments: React.FC = () => {
   const [apptError, setApptError] = useState<string>('');
   const [appointments, setAppointments] = useState<(Appointment & { id: string })[]>([]);
   const [loadingAppts, setLoadingAppts] = useState<boolean>(true);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [form, setForm] = useState({
     facultyId: '',
@@ -125,6 +126,7 @@ const StudentAppointments: React.FC = () => {
 
       setSuccess('Appointment requested successfully.');
       setForm({ facultyId: '', requestedTime: '', reason: '' });
+      setIsModalOpen(false);
     } catch (e: any) {
       setError(e.message || 'Failed to request appointment');
     }
@@ -155,8 +157,16 @@ const StudentAppointments: React.FC = () => {
       
       <div className="appointments-page">
         <div className="appointments-header">
-          <h1 className="appointments-title">Student Appointments</h1>
-          <p className="text-muted">Request and manage your faculty appointments</p>
+          <div>
+            <h1 className="appointments-title">Student Appointments</h1>
+            <p className="text-muted">Request and manage your faculty appointments</p>
+          </div>
+          <button 
+            onClick={() => setIsModalOpen(true)} 
+            className="btn-request-appointment"
+          >
+            + Request Appointment
+          </button>
         </div>
 
         <div className="profile-grid">
@@ -173,45 +183,6 @@ const StudentAppointments: React.FC = () => {
           </div>
 
           <div className="profile-main">
-            <div className="form-card">
-              <h3 className="section-title">Request New Appointment</h3>
-              <form onSubmit={submit}>
-                <div className="form-grid">
-                  <div className="form-field">
-                    <label className="field-label">Select Faculty</label>
-                    <select name="facultyId" value={form.facultyId} onChange={handleChange} required className="form-input">
-                      <option value="">-- Choose Faculty --</option>
-                      {faculty.map(f => (
-                        <option key={f.id} value={f.id}>{f.name} ({f.department})</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-field">
-                    <label className="field-label">Requested Time</label>
-                    <input
-                      type="datetime-local"
-                      name="requestedTime"
-                      value={form.requestedTime}
-                      onChange={handleChange}
-                      required
-                      className="form-input"
-                    />
-                  </div>
-                  <div className="form-field" style={{ gridColumn: '1 / -1' }}>
-                    <label className="field-label">Reason</label>
-                    <textarea
-                      name="reason"
-                      value={form.reason}
-                      onChange={handleChange}
-                      rows={3}
-                      className="form-input"
-                    />
-                  </div>
-                </div>
-                <button type="submit" className="btn btn-primary profile-save-btn" style={{ marginTop: '1rem' }}>Request Appointment</button>
-              </form>
-            </div>
-
             <div className="form-card">
               <h3 className="section-title">My Appointments</h3>
               {loadingAppts ? (
@@ -268,6 +239,74 @@ const StudentAppointments: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {isModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Request New Appointment</h3>
+              <button className="modal-close" onClick={() => setIsModalOpen(false)}>×</button>
+            </div>
+            
+            <div className="modal-body">
+              <form onSubmit={submit} id="appointment-form">
+                <div className="form-grid">
+                  <div className="form-field">
+                    <label className="field-label">Select Faculty</label>
+                    <select name="facultyId" value={form.facultyId} onChange={handleChange} required className="form-input">
+                      <option value="">-- Choose Faculty --</option>
+                      {faculty.map(f => (
+                        <option key={f.id} value={f.id}>{f.name} ({f.department})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-field">
+                    <label className="field-label">Requested Time</label>
+                    <input
+                      type="datetime-local"
+                      name="requestedTime"
+                      value={form.requestedTime}
+                      onChange={handleChange}
+                      required
+                      className="form-input"
+                    />
+                  </div>
+                  <div className="form-field" style={{ gridColumn: '1 / -1' }}>
+                    <label className="field-label">Reason</label>
+                    <textarea
+                      name="reason"
+                      value={form.reason}
+                      onChange={handleChange}
+                      rows={3}
+                      className="form-input"
+                      placeholder="Brief description of your appointment purpose..."
+                    />
+                  </div>
+                </div>
+              </form>
+            </div>
+            
+            <div className="modal-footer">
+              <button 
+                type="button" 
+                onClick={() => setIsModalOpen(false)} 
+                className="btn btn-secondary"
+                style={{ padding: '0.75rem 1.5rem' }}
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                form="appointment-form"
+                className="btn btn-primary profile-save-btn"
+                style={{ padding: '0.75rem 1.5rem' }}
+              >
+                Request Appointment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
