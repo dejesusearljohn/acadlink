@@ -102,8 +102,8 @@ const CreateAccount: React.FC = () => {
                         <Image 
                             src="/AcadLinkLogo.png" 
                             alt="AcadLink" 
-                            width={200} 
-                            height={200} 
+                            width={300} 
+                            height={300} 
                             className="facebook-logo" 
                             priority
                         />
