@@ -255,7 +255,6 @@ const FacultyAppointments: React.FC = () => {
                   {filteredItems.map(apt => (
                     <div key={apt.id} className="appointment-item">
                       <div className="appointment-header">
-                        <div className="appointment-code">Request #{apt.id.slice(-6).toUpperCase()}</div>
                         <h3 className="appointment-title">{apt.studentName || apt.studentEmail}</h3>
                         <div className="appointment-meta">
                           <div className="appointment-meta-item">

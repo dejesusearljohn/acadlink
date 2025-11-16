@@ -238,7 +238,9 @@ const StudentAppointments: React.FC = () => {
                     />
                   </div>
                 </div>
-                <button type="submit" className="btn btn-primary profile-save-btn" style={{ marginTop: '1rem' }}>Request Appointment</button>
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+                  <button type="submit" className="btn btn-primary profile-save-btn">Request Appointment</button>
+                </div>
               </form>
             </div>
 
@@ -255,8 +257,12 @@ const StudentAppointments: React.FC = () => {
                   {appointments.map(apt => (
                     <div key={apt.id} className="appointment-item">
                       <div className="appointment-header">
-                        <div className="appointment-code">Appointment #{apt.id.slice(-6).toUpperCase()}</div>
-                        <h3 className="appointment-title">{facultyNameMap[apt.facultyId] || apt.facultyId}</h3>
+                        <div className="appointment-title-row">
+                          <h3 className="appointment-title">
+                            <span style={{ fontSize: '1.25rem' }}></span>
+                            <span>{facultyNameMap[apt.facultyId] || apt.facultyId}</span>
+                          </h3>
+                        </div>
                         <div className="appointment-meta">
                           <div className="appointment-meta-item">
                             <span>📅 {new Date(apt.requestedTime).toLocaleDateString()}</span>
@@ -326,18 +332,20 @@ const StudentAppointments: React.FC = () => {
                       {apt.status === 'accepted' && !(apt as any).studentFeedback && (
                         <div className="appointment-footer" style={{ flexDirection: 'column', gap: '1rem', alignItems: 'stretch' }}>
                           {!showFeedbackForm[apt.id] ? (
-                            <button 
-                              onClick={() => setShowFeedbackForm(prev => ({ ...prev, [apt.id]: true }))}
-                              className="btn btn-primary" 
-                              style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', alignSelf: 'flex-end' }}
-                            >
-                              Leave Feedback & Rating
-                            </button>
+                            <div className="feedback-button-wrapper">
+                              <button 
+                                onClick={() => setShowFeedbackForm(prev => ({ ...prev, [apt.id]: true }))}
+                                className="btn btn-primary" 
+                                style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+                              >
+                                Leave Feedback & Rating
+                              </button>
+                            </div>
                           ) : (
                             <div className="feedback-form">
                               <div className="form-field">
                                 <label className="field-label">Rating</label>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
                                   {[1, 2, 3, 4, 5].map(star => (
                                     <button
                                       key={star}
@@ -374,7 +382,7 @@ const StudentAppointments: React.FC = () => {
                                   placeholder="Share your experience..."
                                 />
                               </div>
-                              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                                 <button 
                                   onClick={() => setShowFeedbackForm(prev => ({ ...prev, [apt.id]: false }))}
                                   className="btn btn-secondary" 
