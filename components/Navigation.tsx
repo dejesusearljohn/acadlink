@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { User, LogOut, Bell, Menu, X } from 'lucide-react';
+import { User, LogOut, Bell, Menu, X, Calendar } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth } from '../context/AuthContext';
 import { ref, onValue, off, remove } from 'firebase/database';
@@ -136,6 +136,8 @@ const Navigation: React.FC = () => {
       // Mark as read when opening panel
       setHasUnread(false);
     }
+    // On mobile, keep sidebar open when opening notifications
+    // Panel will appear as overlay
   };
 
   return (
@@ -316,7 +318,7 @@ const Navigation: React.FC = () => {
                       className={`mobile-sidebar-link ${isActive('/student-dashboard') ? 'mobile-sidebar-link-active' : ''}`}
                       onClick={closeSidebar}
                     >
-                      Appointments
+                      <Calendar className="nav-icon-small" /> Appointments
                     </Link>
                   )}
                   {isFaculty() && (
@@ -325,10 +327,9 @@ const Navigation: React.FC = () => {
                       className={`mobile-sidebar-link ${isActive('/faculty-dashboard') ? 'mobile-sidebar-link-active' : ''}`}
                       onClick={closeSidebar}
                     >
-                      Appointments
+                      <Calendar className="nav-icon-small" /> Appointments
                     </Link>
                   )}
-                  <div className="mobile-sidebar-divider"></div>
                   <Link 
                     href="/profile" 
                     className={`mobile-sidebar-link ${isActive('/profile') ? 'mobile-sidebar-link-active' : ''}`}
@@ -336,21 +337,20 @@ const Navigation: React.FC = () => {
                   >
                     <User className="nav-icon-small" /> My Profile
                   </Link>
-                  <div className="nav-notification-wrapper mobile-sidebar-link">
-                    <button 
-                      className="nav-link" 
-                      title="Notifications" 
-                      type="button"
-                      onClick={handleBellClick}
-                    >
-                      <Bell className="nav-icon-small" /> Notifications
-                    </button>
+                  <button 
+                    className="mobile-sidebar-link mobile-sidebar-notification"
+                    title="Notifications" 
+                    type="button"
+                    onClick={handleBellClick}
+                  >
+                    <Bell className="nav-icon-small" /> Notifications
                     {hasUnread && notifCount > 0 && (
-                      <span className="notification-badge">
+                      <span className="notification-badge-inline">
                         {notifCount}
                       </span>
                     )}
-                  </div>
+                  </button>
+                  <div className="mobile-sidebar-divider"></div>
                   <button 
                     onClick={() => { handleLogout(); closeSidebar(); }} 
                     className="mobile-sidebar-link mobile-sidebar-logout"
