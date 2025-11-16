@@ -108,8 +108,8 @@ const CreateAccount: React.FC = () => {
                             priority
                         />
                         <p className="facebook-tagline">
-                            Join our community. <br />
-                            Connect with professors and students today.
+                            Connect with professors and students. <br />
+                            Manage your consultations seamlessly.
                         </p>
                     </div>
                 </div>
